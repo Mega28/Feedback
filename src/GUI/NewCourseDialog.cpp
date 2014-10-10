@@ -2,6 +2,7 @@
 #include "ui_NewCourseDialog.h"
 #include <QFileDialog>
 #include <iostream>
+#include "../presistent/CourseInfo.h"
 
 NewCourseDialog::NewCourseDialog(QWidget *parent) :
     QDialog(parent),
@@ -57,22 +58,17 @@ void NewCourseDialog::courseDirectoryLineEditChanged()
 
 }
 
-QString NewCourseDialog::getCourseName()
+Feedback::CourseInfoPtr NewCourseDialog::getCourseInfo()
 {
-    return ui->nameLineEdit->text();
-}
-
-QString NewCourseDialog::getCourseCode()
-{
-    return ui->codeLineEdit->text();
-}
-
-QString NewCourseDialog::getFileName()
-{
-    return ui->fileNameLineEdit->text();
-}
-
-QString NewCourseDialog::getDirectory()
-{
-    return ui->courseDirectoryLineEdit->text();
+    QString fileName = ui->fileNameLineEdit->text();
+    QString directory = ui->courseDirectoryLineEdit->text();
+    if(fileName.right(3)!=".cf")
+        fileName = fileName+".cf";
+    fileName= directory+"/"+fileName;
+    std::cout << fileName.right(3).toStdString() << std::endl;
+    return std::make_shared<Feedback::CourseInfo>(
+                ui->nameLineEdit->text().toStdString(),
+                ui->codeLineEdit->text().toStdString(),
+                fileName.toStdString(),
+                directory.toStdString());
 }

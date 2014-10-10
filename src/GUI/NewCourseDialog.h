@@ -3,9 +3,14 @@
 
 #include <QDialog>
 #include <QPushButton>
+#include <memory>
 
 namespace Ui {
 class NewCourseDialog;
+}
+namespace Feedback {
+    class CourseInfo;
+
 }
 
 class NewCourseDialog : public QDialog
@@ -18,10 +23,7 @@ public:
 
     void courseDirectoryButtonClicked();
     void courseDirectoryLineEditChanged();
-    QString getCourseName();
-    QString getCourseCode();
-    QString getFileName();
-    QString getDirectory();
+    std::shared_ptr<Feedback::CourseInfo> getCourseInfo();
 private:
     Ui::NewCourseDialog *ui;
     QPalette* mLineEditPalette;

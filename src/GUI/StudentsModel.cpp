@@ -1,9 +1,10 @@
 #include "StudentsModel.h"
-#include "../Model.h"
+#include "../Feedback.h"
 
 
-StudentsModel::StudentsModel(Model* mainModel):mMainModel(mainModel)
+StudentsModel::StudentsModel(std::shared_ptr<Feedback::StudentManager> activeStudents):mActiveStudents(activeStudents)
 {
+
 }
 
 QModelIndex StudentsModel::index(int row, int column, const QModelIndex &parent) const
@@ -19,20 +20,22 @@ QModelIndex StudentsModel::parent(const QModelIndex &child) const
 
 int StudentsModel::rowCount(const QModelIndex &parent) const
 {
-    return mMainModel->getStudentsCount("");
+    return mActiveStudents->getCount();
 }
 
 int StudentsModel::columnCount(const QModelIndex &parent) const
 {
-    return mMainModel->getStudentColumnSize();
+    return mActiveStudents->getAttribCount();
 }
 
 QVariant StudentsModel::data(const QModelIndex &index, int role) const
 {
     if(role==Qt::DisplayRole)
     {
-        StringListList studentsList = mMainModel->getStudents();
-        StringList rowData = studentsList[index.row()];
+        std::vector<StudentPtr> studentsList = mActiveStudents->getAll();
+        StudentPtr student = studentsList[index.row()];
+
+        StringList rowData = student->toStringList();
         QString data = QString::fromStdString(rowData[index.column()]);
         return data;
     } else {
@@ -46,7 +49,7 @@ QVariant StudentsModel::headerData(int section, Qt::Orientation orientation, int
     {
         if(orientation== Qt::Horizontal )
         {
-            QString header = QString::fromStdString((mMainModel->getStudentHeader())[section]);
+            QString header = QString::fromStdString((mActiveStudents->getAttribHeader())[section]);
             header=header.toLower();
             header[0] = header[0].toUpper();
             return header;
@@ -66,7 +69,7 @@ bool StudentsModel::insertRows(int row, int count, const QModelIndex &parent)
                     this->rowCount(QModelIndex())+count);
     for(int rowNum=0;rowNum<count;rowNum++)
     {
-        mMainModel->addStudent("NULL","fName","lName","mail@example.com","2014","1");
+        mActiveStudents->store("NULL","fName","lName","mail@example.com","2014","1");
     }
     endInsertRows();
 }
@@ -86,10 +89,9 @@ bool StudentsModel::setData(const QModelIndex &index,
     QModelIndex keyIndex=this->createIndex(index.row(),0);
 
     if (index.isValid() && role == Qt::EditRole) {
-        mMainModel->editStudentData(this->data(keyIndex,Qt::DisplayRole).toString().toStdString(),
-                                    this->headerData(index.column(),Qt::Horizontal,Qt::DisplayRole) \
-                                    .toString().toStdString(),
-                                    value.toString().toStdString());
+        StudentPtr student = mActiveStudents->getByID(this->data(keyIndex, Qt::DisplayRole).toString().toInt());
+        editStudent(student,index.column(),value.toString().toStdString());
+        mActiveStudents->update(student);
         emit dataChanged(index, index);
         return true;
     }
@@ -104,9 +106,35 @@ bool StudentsModel::removeRows(int position, int rows, const QModelIndex &parent
         keyData.push_back(this->data(this->createIndex(position+row,0),Qt::DisplayRole).toString().toStdString());
     }
     for(auto key:keyData){
-        mMainModel->removeStudent(key);
+        mActiveStudents->remove(key);
     }
     endRemoveRows();
     return true;
 }
 
+void StudentsModel::editStudent(StudentPtr student,int index,const std::string& newData)
+{
+    switch (index)
+    {
+        case 1:
+            student->setSeatNo(newData);
+        case 2:
+            student->setFirstName(newData);
+            break;
+        case 3:
+            student->setLastName(newData);
+            break;
+        case 4:
+            student->setMail(newData);
+            break;
+        case 5:
+            student->setYear(newData);
+            break;
+        case 6:
+            student->setSection(newData);
+            break;
+    default:
+        throw; // Shoud show an error message here
+    }
+
+}

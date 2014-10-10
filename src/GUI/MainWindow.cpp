@@ -8,22 +8,21 @@
 
 #include "AboutDialog.h"
 #include "NewStudentDialog.h"
-#include "../DBClient.h"
 #include"StudentsModel.h"
 #include "StudentsWindow.h"
 #include "NewCourseDialog.h"
-MainWindow::MainWindow(Model* model,QWidget *parent ) :
+MainWindow::MainWindow(QWidget *parent ) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    mModel(model)
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     connect(ui->aboutAction,&QAction::triggered,this,&MainWindow::showAbout);
     connect(ui->manageStudentsAction,&QAction::triggered,
             this,&MainWindow::showStudentsWindow);
     connect(ui->newCourseAction,&QAction::triggered,this,&MainWindow::showNewCourse);
-    mModel->registerErrorHandler(this);
+    connect(ui->openCourseAction,&QAction::triggered,this,&MainWindow::showOpenCourse);
     this->setWindowTitle("Feedback");
+
 }
 
 MainWindow::~MainWindow()
@@ -38,6 +37,8 @@ void MainWindow::showNewCourse()
     {
         //TODO add data verification in the dialog
         //TODO implement Model file creation
+
+        mActiveCourse = std::make_shared<Feedback::Course>(dialog->getCourseInfo(),this);
     }
 }
 
@@ -48,23 +49,34 @@ void MainWindow::showAbout()
 }
 void MainWindow::showStudentsWindow()
 {
-    StudentsWindow* sWindow = new StudentsWindow(mModel,this);
+    //TODO Implement memory handling
+    StudentsWindow* sWindow = new StudentsWindow(mActiveCourse->getStudentMgr(),this);
     sWindow->show();
+}
+
+void MainWindow::showOpenCourse()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,"Choose a course file",NULL,"CourseFile (*.cf)");
+    if (!fileName.isNull() && !fileName.isEmpty())
+    {
+        mActiveCourse = std::make_shared<Feedback::Course>(fileName.toStdString(),this);
+    }
+
 }
 
 
 
-void MainWindow::showMsg(std::string const& error,ERROR_LVL level)
+void MainWindow::showMsg(std::string const& error,Feedback::ERROR_LVL level)
 {
 
     switch(level) {
-        case ERROR_LVL::MESSAGE:
+        case Feedback::ERROR_LVL::MESSAGE:
             //TODO
-        case ERROR_LVL::ERROR:
+        case Feedback::ERROR_LVL::ERROR:
             //TODO
-        case ERROR_LVL::WARNING :
-                QMessageBox::warning(this,"Error",QString::fromStdString(error));
-                break;
+        case Feedback::ERROR_LVL::WARNING :
+            QMessageBox::warning(this,"Error",QString::fromStdString(error));
+            break;
 
 
         default:

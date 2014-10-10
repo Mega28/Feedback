@@ -2,29 +2,29 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "../Model.h"
-#include "../ErrorHandler.h"
-
+#include "../Feedback.h"
+#include <memory>
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow, public ErrorHandler
+class MainWindow : public QMainWindow, public Feedback::ErrorHandler
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(Model* model,QWidget *parent = 0 );
+    explicit MainWindow(QWidget *parent = 0 );
     ~MainWindow();
     void showAbout();
-    virtual void showMsg(std::string const& error, ERROR_LVL level);
+    virtual void showMsg(std::string const& error, Feedback::ERROR_LVL level);
 
 
     void showStudentsWindow();
     void showNewCourse();
+    void showOpenCourse();
 private:
     Ui::MainWindow *ui;
-    Model* mModel;
+    std::shared_ptr<Feedback::Course> mActiveCourse;
 };
 
 #endif // MAINWINDOW_H

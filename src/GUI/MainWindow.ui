@@ -30,6 +30,7 @@
      <string>File</string>
     </property>
     <addaction name="newCourseAction"/>
+    <addaction name="openCourseAction"/>
     <addaction name="separator"/>
     <addaction name="manageStudentsAction"/>
     <addaction name="manageTeachersAction"/>
@@ -62,6 +63,11 @@
   <action name="newCourseAction">
    <property name="text">
     <string>New Course...</string>
+   </property>
+  </action>
+  <action name="openCourseAction">
+   <property name="text">
+    <string>Open Course...</string>
    </property>
   </action>
  </widget>

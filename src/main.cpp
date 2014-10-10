@@ -1,6 +1,5 @@
 #include <iostream>
-#include "Mailclient.h"
-#include "Model.h"
+
 #include <memory>
 #include "GUI/MainWindow.h"
 #include <QApplication>
@@ -21,8 +20,7 @@ int main(int argc, char** argv)
 //    else
 //        std::cout << "Couldn' find Ahmed" << std::endl;
     QApplication app(argc,argv,0);
-    Model* model = new Model();
-    MainWindow* window = new MainWindow(model,NULL);
+    MainWindow* window = new MainWindow(NULL);
     window->show();
 
     return app.exec();

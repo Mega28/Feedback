@@ -1,12 +1,13 @@
 #ifndef STUDENTSMODEL_H
 #define STUDENTSMODEL_H
-#include "../Model.h"
 #include<QAbstractItemModel>
+#include"../Feedback.h"
+#include<memory>
 
 class StudentsModel : public QAbstractItemModel
 {
 public:
-    StudentsModel(Model* mainModel);
+    StudentsModel(std::shared_ptr<Feedback::StudentManager> activeStudents);
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
@@ -18,7 +19,8 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent);
     bool removeRows(int position, int rows, const QModelIndex &parent);
 private:
-    Model* mMainModel;
+    std::shared_ptr<Feedback::StudentManager> mActiveStudents;
+    void editStudent(StudentPtr student, int index, const std::string &newData);
 };
 
 

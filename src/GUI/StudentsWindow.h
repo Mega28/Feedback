@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "StudentsModel.h"
 
+#include "../Feedback.h"
+
 namespace Ui {
 class StudentsWindow;
 }
@@ -13,14 +15,14 @@ class StudentsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit StudentsWindow(Model* model,QWidget *parent = 0);
+    explicit StudentsWindow(std::shared_ptr<Feedback::StudentManager> activeStudents,QWidget *parent = 0);
     void showNewStudent();
     void showImportStudents();
     ~StudentsWindow();
 
 private:
     Ui::StudentsWindow *ui;
-    Model* mMainModel;
+    std::shared_ptr<Feedback::StudentManager> mActiveManager;
 };
 
 #endif // STUDENTSWINDOW_H
